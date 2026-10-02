@@ -1,0 +1,5 @@
+node_modules
+coverage
+.git
+k8s
+monitoring
