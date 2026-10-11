@@ -10,10 +10,10 @@ pipeline {
         booleanParam(name: 'DEPLOY', defaultValue: false,
                      description: 'Deploy to local Kubernetes (rolling update)')
     }
-
     environment {
-        IMAGE = 'travel-booking'
-        TAG   = "${env.BUILD_NUMBER}"
+        IMAGE      = 'travel-booking'
+        TAG        = "${env.BUILD_NUMBER}"
+        KUBECONFIG = 'C:/Users/Komal/.kube/config'
     }
 
     stages {
