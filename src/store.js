@@ -1,5 +1,5 @@
 // In-memory data store (seeded). Replace with a real DB (Postgres/Mongo) for production.
-let destinations, packages, bookings, nextBookingId;
+let destinations, packages, bookings, users, nextBookingId, nextUserId;
 
 function reset() {
   destinations = [
@@ -16,28 +16,45 @@ function reset() {
     { id: 5, destinationId: 4, title: 'Dubai Desert Special', days: 4, price: 55000 }
   ];
   bookings = [];
+  users = [];
   nextBookingId = 1;
+  nextUserId = 1;
 }
 reset();
 
 module.exports = {
   reset,
+  // destinations & packages
   listDestinations: () => destinations,
   addDestination: (d) => { const x = { id: destinations.length + 1, ...d }; destinations.push(x); return x; },
   listPackages: (destinationId) =>
     destinationId ? packages.filter((p) => p.destinationId === Number(destinationId)) : packages,
   getPackage: (id) => packages.find((p) => p.id === Number(id)),
-  listBookings: () => bookings,
-  createBooking: ({ pkg, name, email, travelers }) => {
+  counts: () => ({ destinations: destinations.length, packages: packages.length, bookings: bookings.length }),
+
+  // users
+  createUser: ({ name, email, passwordHash }) => {
+    const u = { id: nextUserId++, name, email, passwordHash, createdAt: new Date().toISOString() };
+    users.push(u);
+    return u;
+  },
+  findUserByEmail: (email) => users.find((u) => u.email === email),
+  findUserById: (id) => users.find((u) => u.id === Number(id)),
+
+  // bookings (always tied to a user)
+  listBookings: (userId) => (userId === undefined ? bookings : bookings.filter((b) => b.userId === userId)),
+  createBooking: ({ pkg, user, travelers }) => {
     const b = {
-      id: nextBookingId++, packageId: pkg.id, packageTitle: pkg.title, name, email, travelers,
+      id: nextBookingId++, userId: user.id, packageId: pkg.id, packageTitle: pkg.title,
+      name: user.name, email: user.email, travelers,
       totalPrice: pkg.price * travelers, status: 'CONFIRMED', createdAt: new Date().toISOString()
     };
     bookings.push(b);
     return b;
   },
-  cancelBooking: (id) => {
-    const b = bookings.find((x) => x.id === Number(id));
+  // returns undefined if the booking does not exist OR belongs to another user
+  cancelBooking: (id, userId) => {
+    const b = bookings.find((x) => x.id === Number(id) && x.userId === userId);
     if (b) b.status = 'CANCELLED';
     return b;
   }

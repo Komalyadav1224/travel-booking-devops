@@ -9,8 +9,11 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;bac
 .wrap{max-width:1100px;margin:0 auto;padding:0 18px 40px}
 .hero{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:26px 0 70px}
 .nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.navr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .logo{font-size:22px;font-weight:800}
 .badge{background:#ffffff2e;border:1px solid #ffffff55;padding:5px 12px;border-radius:99px;font-size:12px}
+.hi{font-weight:600}
+.navlink{color:#fff;font-size:14px;text-decoration:underline}
 .hero h1{font-size:clamp(28px,5vw,46px);margin:36px 0 8px;line-height:1.1}
 .hero p{margin:0;font-size:17px;opacity:.92;max-width:520px}
 .stats{display:flex;gap:28px;margin-top:26px;flex-wrap:wrap}
@@ -30,20 +33,32 @@ h2{margin:34px 0 14px;font-size:22px}
 button{cursor:pointer;border:0;border-radius:10px;padding:9px 14px;font-weight:600;background:var(--brand);color:#fff;font-size:14px}
 button:hover{filter:brightness(1.1)}
 button.ghost{background:transparent;color:#e11d48;border:1px solid #e11d4855;padding:5px 10px;font-size:12px}
+button.light{background:#ffffff26;border:1px solid #ffffff55;color:#fff}
+button.solid{background:#fff;color:var(--brand)}
 .form{padding:20px;display:grid;gap:12px;max-width:520px}
 label{font-size:13px;color:var(--muted);display:grid;gap:5px}
 input,select{padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font-size:15px;width:100%}
 input:focus,select:focus{outline:2px solid var(--brand);border-color:transparent}
+.note{margin:0;font-size:13px;color:var(--muted)}
+.err{margin:0;font-size:13px;color:#e11d48;min-height:16px}
 .total{display:flex;justify-content:space-between;font-size:18px;font-weight:700;padding:10px 0;border-top:1px dashed var(--line)}
 .status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px}
 .CONFIRMED{background:#16a34a22;color:#16a34a}.CANCELLED{background:#e11d4822;color:#e11d48}
 .empty{color:var(--muted);padding:20px;text-align:center}
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(90px);background:#16a34a;color:#fff;padding:12px 20px;border-radius:12px;transition:.3s;box-shadow:var(--shadow);z-index:9}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal.open{display:flex}
+.modal .form{width:100%;max-width:400px}
+.modal h3{margin:0;font-size:20px}
+.link{background:none;color:var(--brand);padding:0;font-size:13px;text-decoration:underline}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(90px);background:#16a34a;color:#fff;padding:12px 20px;border-radius:12px;transition:.3s;box-shadow:var(--shadow);z-index:30}
 #toast.show{transform:translateX(-50%) translateY(0)}#toast.bad{background:#e11d48}
 footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
 </style></head><body>
 <header class="hero"><div class="wrap">
- <div class="nav"><div class="logo">✈️ TravelEase</div><span class="badge" id="info">loading…</span></div>
+ <div class="nav">
+  <div class="logo">✈️ TravelEase</div>
+  <div class="navr"><span class="badge" id="info">loading…</span><span class="navr" id="auth"></span></div>
+ </div>
  <h1>Find your next<br>unforgettable trip</h1>
  <p>Hand-picked packages to beaches, mountains and deserts. Book in seconds.</p>
  <div class="stats"><div><b id="s1">0</b><span>Destinations</span></div><div><b id="s2">0</b><span>Packages</span></div><div><b id="s3">0</b><span>Bookings</span></div></div>
@@ -53,14 +68,27 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px}
  <h2 id="book-h">Book your trip</h2>
  <div class="card form" id="book-card">
   <label>Package<select id="pkg"></select></label>
-  <label>Your name<input id="name" placeholder="e.g. Komal Yadav"></label>
-  <label>Email<input id="email" type="email" placeholder="you@example.com"></label>
   <label>Travelers<input id="trav" type="number" min="1" max="20" value="1"></label>
+  <p class="note" id="book-note"></p>
   <div class="total"><span>Total</span><span id="total">₹0</span></div>
   <button id="book">Book now</button>
  </div>
- <h2>My bookings</h2><div class="grid" id="bookings"></div>
+ <div id="mybk">
+  <h2 id="bookings-h">My bookings</h2><div class="grid" id="bookings"></div>
+ </div>
  <footer>Travel Booking System · DevOps Project</footer>
+</div>
+
+<div class="modal" id="modal">
+ <div class="card form">
+  <h3 id="m-title">Login</h3>
+  <label id="f-name-wrap">Full name<input id="f-name" autocomplete="name" placeholder="e.g. Komal Yadav"></label>
+  <label>Email<input id="f-email" type="email" autocomplete="email" placeholder="you@example.com"></label>
+  <label>Password<input id="f-pass" type="password" autocomplete="current-password" placeholder="min 8 characters"></label>
+  <p class="err" id="err"></p>
+  <button id="auth-submit">Login</button>
+  <p class="note"><span id="m-switch-text"></span> <button class="link" id="m-switch"></button></p>
+ </div>
 </div>
 <div id="toast"></div>
 <script src="app.js"></script></body></html>
