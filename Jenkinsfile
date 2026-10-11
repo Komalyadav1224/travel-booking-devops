@@ -29,14 +29,13 @@ pipeline {
             steps { script { run("docker build -t ${IMAGE}:${TAG} .") } }
         }
 
-        stage('Security Scan (Trivy)') {
+               stage('Security Scan (Trivy)') {
             steps {
                 script {
-                    // Does not fail the build if Trivy is not installed on this Jenkins
                     try {
-                        run("trivy image --severity CRITICAL --exit-code 1 ${IMAGE}:${TAG}")
+                        run("docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity CRITICAL --exit-code 1 ${IMAGE}:${TAG}")
                     } catch (err) {
-                        echo "Trivy step failed or Trivy is not installed: ${err}"
+                        echo "Trivy found a problem or could not run: ${err}"
                         currentBuild.result = 'UNSTABLE'
                     }
                 }
