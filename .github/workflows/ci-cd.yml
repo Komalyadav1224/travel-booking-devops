@@ -3,7 +3,7 @@ on:
   push: { branches: [main] }
   pull_request:
 env:
-  IMAGE: ghcr.io/${{ github.repository }}
+    IMAGE: ghcr.io/komalyadav1224/travel-booking-devops
 jobs:
   test:
     runs-on: ubuntu-latest
