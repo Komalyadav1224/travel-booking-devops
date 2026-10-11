@@ -41,8 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configure kubeconfig
-        run: |
-          mkdir -p ~/.kube && echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+      - name: Apply blue-green manifests
+        run: kubectl apply -f k8s/bluegreen/
       - name: Blue-Green deploy
-        run: scripts/deploy-bluegreen.sh ghcr.io/${{ github.repository }}:${{ github.sha }}
+        run: bash scripts/deploy-bluegreen.sh ${{ env.IMAGE }}:${{ github.sha }}
